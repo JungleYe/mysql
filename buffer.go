@@ -21,6 +21,11 @@ const defaultBufSize = 4096
 // In other words, we can't write and read simultaneously on the same connection.
 // The buffer is similar to bufio.Reader / Writer but zero-copy-ish
 // Also highly optimized for this particular use case.
+//buf-数据存储区（真实存放数据的地方）
+//nc-数据来源地（从nc中获取新的数据）
+//idx-读取位置（表示从哪个位置开始，数据是可用的）
+//length-有效数据长度（表示从idx之后还有多少数据是可用的）
+//timeout-nc中设置的读超时时间
 type buffer struct {
 	buf     []byte // buf is a byte buffer who's length and capacity are equal.
 	nc      net.Conn
@@ -38,6 +43,7 @@ func newBuffer(nc net.Conn) buffer {
 }
 
 // fill reads into the buffer until at least _need_ bytes are in it
+//至少向buffer中填充need个字节！
 func (b *buffer) fill(need int) error {
 	n := b.length
 
